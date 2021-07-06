@@ -1,0 +1,28 @@
+from Abstract.NodoAST import NodoAST
+from TS.Tipo import TIPO
+from TS.Excepcion import Excepcion
+from Instrucciones.Funcion import Funcion
+
+class Length(Funcion):
+    def __init__(self, nombre, parametros, instrucciones, fila, columna):
+        self.nombre =nombre.lower()
+        self.parametros = parametros
+        self.instrucciones = instrucciones
+        self.fila = fila
+        self.columna = columna
+        self.tipo = TIPO.NULO
+    def interpretar(self, tree, table):
+        simbolo = table.getTabla("toLength##Param1")
+        if simbolo == None : return Excepcion("Semantico", "No se encontró el parámetro de toLength", self.fila, self.columna)
+        valor = 0
+        try:
+            valor = len(simbolo.getValor())
+        except:
+            return Excepcion("Semantico", "Tipo incorrecto para length", self.fila, self.columna)
+        self.tipo = TIPO.ENTERO
+        return valor
+
+
+    def getNodo(self):
+        nodo = NodoAST("ROUND")
+        return nodo

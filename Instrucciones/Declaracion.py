@@ -1,3 +1,4 @@
+from Abstract.NodoAST import NodoAST
 from TS.Excepcion import Excepcion
 from Abstract.Instruccion import Instruccion
 from TS.Simbolo import Simbolo
@@ -12,7 +13,7 @@ class Declaracion(Instruccion):
 
     def interpretar(self, tree, table):
         if self.expresion == None:
-            simbolo = Simbolo(str(self.identificador), TIPO.NULO, self.fila, self.columna, None)
+            simbolo = Simbolo(str(self.identificador), TIPO.NULO, False,self.fila, self.columna, None)
 
             result = table.setTabla(simbolo)
 
@@ -21,10 +22,15 @@ class Declaracion(Instruccion):
         value = self.expresion.interpretar(tree, table) # Valor a asignar a la variable
         if isinstance(value, Excepcion): return value
 
-        simbolo = Simbolo(str(self.identificador), self.expresion.tipo, self.fila, self.columna, value)
+        simbolo = Simbolo(str(self.identificador), self.expresion.tipo, False,self.fila, self.columna, value)
 
         result = table.setTabla(simbolo)
 
         if isinstance(result, Excepcion): return result
         return None
-
+    def getNodo(self):
+        nodo = NodoAST("DECLARACION")
+        nodo.agregarHijo(str(self.identificador))
+        if self.expresion != None:
+            nodo.agregarHijoNodo(self.expresion.getNodo())
+        return nodo 

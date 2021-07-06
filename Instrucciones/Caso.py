@@ -1,3 +1,5 @@
+from Abstract.NodoAST import NodoAST
+from Instrucciones.Continue import Continue
 from Abstract.Instruccion import Instruccion
 from TS.Excepcion import Excepcion
 from TS.TablaSimbolos import TablaSimbolos
@@ -14,7 +16,8 @@ class Caso(Instruccion):
     def interpretar(self, tree, table,valor):
         value = self.expresion.interpretar(tree,table)
         if value == valor:
-            nuevaTabla = TablaSimbolos(table) 
+            nuevaTabla = TablaSimbolos(table)
+            nuevaTabla.ambito = table.ambito +"Case"
             for instruccion in self.instrucciones:      # REALIZAR LAS ACCIONES
                 value = instruccion.interpretar(tree,nuevaTabla)
                 if isinstance(value, Excepcion) :
@@ -22,5 +25,18 @@ class Caso(Instruccion):
                     tree.updateConsola(value.toString())
                 if isinstance(value, Break): 
                     return value
+                if isinstance(value, Continue): 
+                    return value
+
+    def getNodo(self):
+        nodo = NodoAST("Caso")
+        condici = NodoAST("CONDICION")
+        condici.agregarHijoNodo(self.expresion.getNodo())
+        nodo.agregarHijoNodo(condici)
+        instrucciones = NodoAST("INSTRUCCIONES")
+        for instr in self.instrucciones:
+            instrucciones.agregarHijoNodo(instr.getNodo())
+        nodo.agregarHijoNodo(instrucciones)
+        return nodo 
         
         

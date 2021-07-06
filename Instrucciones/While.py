@@ -1,3 +1,6 @@
+from Abstract.NodoAST import NodoAST
+from Instrucciones.Continue import Continue
+from Instrucciones.Return import Return
 from Abstract.Instruccion import Instruccion
 from TS.Excepcion import Excepcion
 from TS.Tipo import TIPO
@@ -19,13 +22,24 @@ class While(Instruccion):
             if self.condicion.tipo == TIPO.BOOLEANO:
                 if bool(condicion) == True:   # VERIFICA SI ES VERDADERA LA CONDICION
                     nuevaTabla = TablaSimbolos(table)       #NUEVO ENTORNO
+                    nuevaTabla.ambito = table.ambito +"while"
                     for instruccion in self.instrucciones:
                         result = instruccion.interpretar(tree, nuevaTabla) #EJECUTA INSTRUCCION ADENTRO DEL IF
                         if isinstance(result, Excepcion) :
                             tree.getExcepciones().append(result)
                             tree.updateConsola(result.toString())
                         if isinstance(result, Break): return None
+                        if isinstance(result, Continue): pass
+                        if isinstance(result, Return): return result
                 else:
                     break
             else:
                 return Excepcion("Semantico", "Tipo de dato no booleano en IF.", self.fila, self.columna)
+    def getNodo(self):
+        nodo = NodoAST("WHILE")
+
+        instrucciones = NodoAST("INSTRUCCIONES")
+        for instr in self.instrucciones:
+            instrucciones.agregarHijoNodo(instr.getNodo())
+        nodo.agregarHijoNodo(instrucciones)
+        return nodo 

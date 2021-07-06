@@ -1,3 +1,4 @@
+from Abstract.NodoAST import NodoAST
 from Abstract.Instruccion import Instruccion
 
 class Primitivos(Instruccion):
@@ -6,6 +7,12 @@ class Primitivos(Instruccion):
         self.valor = valor
         self.fila = fila
         self.columna = columna
+        self.arreglo = False
 
     def interpretar(self, tree, table):
         return self.valor
+    
+    def getNodo(self):
+        nodo = NodoAST("PRIMITIVO")
+        nodo.agregarHijo(str(self.valor))
+        return nodo

@@ -274,7 +274,7 @@ def changs():
 html = ""
 def analizar():
     content = editor.get("1.0", tkinter.END)
-    ast = grammar.ejecutar(content)
+    ast = grammar.ejecutar(content,raiz,consola)
     consola.delete(1.0, tkinter.END)
     consola.insert(tkinter.INSERT, ast.getConsola())
     print(ast.getConsola())
@@ -299,10 +299,48 @@ def analizar():
 
 </body>
 </html>"""
+    html2 = """<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Tabla de simbolos</h2>
+
+<table style="width:100%">
+  <tr>
+    <th>Identificador</th>
+    <th>Ambito</th> 
+    <th>Valor</th>
+    <th>Tipo</th>
+    <th>Columna</th>
+    <th>Linea</th>
+  </tr>
+"""
+    print(len(ast.reporteSimbolo))
+    for error in ast.reporteSimbolo:                   # CAPTURA DE ERRORES LEXICOS Y SINTACTICOS
+        tipo = error.getTipo()
+        if error.arreglo:
+            tipo += "->Arreglo"
+        html2 += "<tr><td>"+error.getID()+"</td><td>"+error.getAmbito()+"</td><td>"+str(error.getValor())+"</td><td>"+str(tipo)+"</td><td>"+str(error.getColumna())+"</td><td>"+str(error.getFila())+"</td></tr>"
+    
+    html2+= """</table>
+
+</body>
+</html>"""
+    dirname = os.path.dirname(__file__)
+    direcc = os.path.join(dirname, 'ast.dot')
+    arch = open(direcc, "w+")
+    arch.write(ast.dot)
+    arch.close()
+    os.system('dot -T pdf -o ast.pdf ast.dot')
+    openPDF(os.path.join(dirname,'ast.pdf'))
     fguardar = open("./errores.html", "w+",encoding="UTF-8")
     fguardar.write(html)
     fguardar.close()
     openPDF("./errores.html")
+    fguardar = open("./simbolos.html", "w+",encoding="UTF-8")
+    fguardar.write(html2)
+    fguardar.close()
+    openPDF("./simbolos.html")
     
 
 

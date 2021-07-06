@@ -1,3 +1,5 @@
+from Abstract.NodoAST import NodoAST
+from Instrucciones.Continue import Continue
 from Abstract.Instruccion import Instruccion
 from TS.Excepcion import Excepcion
 from TS.Tipo import TIPO
@@ -25,6 +27,7 @@ class For(Instruccion):
             valor = self.variable.interpretar(tree,table)
         while True:
             nuevaTabla = TablaSimbolos(table) 
+            nuevaTabla.ambito = table.ambito +"For"
             if obtener: 
                 nuevaTabla.setTabla(simbolo)
             if declarar : 
@@ -45,6 +48,7 @@ class For(Instruccion):
                             tree.getExcepciones().append(result)
                             tree.updateConsola(result.toString())
                         if isinstance(result, Break): return None
+                        if isinstance(result, Continue): pass
                     acres = self.actualizar.interpretar(tree,nuevaTabla)
                     if isinstance(acres, Excepcion): return acres
                     simbolo = nuevaTabla.getTabla(self.variable.identificador.lower())
@@ -52,3 +56,19 @@ class For(Instruccion):
                     break
             else:
                 return Excepcion("Semantico", "Tipo de dato no booleano en condicion for.", self.fila, self.columna)
+    def getNodo(self):
+        nodo = NodoAST("FOR")
+        variable = NodoAST("Variable")
+        variable.agregarHijoNodo(self.variable.getNodo())
+        nodo.agregarHijoNodo(variable)
+        codicion = NodoAST("Condicion")
+        codicion.agregarHijoNodo(self.condicion.getNodo())
+        nodo.agregarHijoNodo(codicion)
+        increm = NodoAST("Incremento")
+        increm.agregarHijoNodo(self.actualizar.getNodo())
+        nodo.agregarHijoNodo(increm)
+        instrucciones = NodoAST("INSTRUCCIONES")
+        for instr in self.instrucciones:
+            instrucciones.agregarHijoNodo(instr.getNodo())
+        nodo.agregarHijoNodo(instrucciones)
+        return nodo 

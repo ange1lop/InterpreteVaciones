@@ -1,3 +1,4 @@
+from Abstract.NodoAST import NodoAST
 from TS.Excepcion import Excepcion
 from Abstract.Instruccion import Instruccion
 from TS.Simbolo import Simbolo
@@ -10,15 +11,21 @@ class Asignacion(Instruccion):
         self.fila = fila
         self.columna = columna
         self.tipo = None
+        self.arreglo = False
 
     def interpretar(self, tree, table):
         value = self.expresion.interpretar(tree, table) # Valor a asignar a la variable
         if isinstance(value, Excepcion): return value
 
-        simbolo = Simbolo(self.identificador, self.expresion.tipo, self.fila, self.columna, value)
+        simbolo = Simbolo(self.identificador, self.expresion.tipo, self.arreglo,self.fila, self.columna, value)
         result = table.actualizarTabla(simbolo)
 
         if isinstance(result, Excepcion): return result
         self.tipo = self.expresion.tipo
         return value
+    def getNodo(self):
+        nodo = NodoAST("ASIGNACION")
+        nodo.agregarHijo(str(self.identificador))
+        nodo.agregarHijoNodo(self.expresion.getNodo())
+        return nodo 
 

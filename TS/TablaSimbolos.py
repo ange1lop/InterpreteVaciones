@@ -7,22 +7,42 @@ class TablaSimbolos:
     def __init__(self, anterior = None):
         self.tabla = {} # Diccionario Vacio
         self.anterior = anterior
+        self.ambito = ""
+        self.lista = []
 
     def setTabla(self, simbolo):      # Agregar una variable
         if simbolo.id.lower() in self.tabla :
             return Excepcion("Semantico", "Variable " + simbolo.id + " ya existe", simbolo.fila, simbolo.columna)
         else:
+            self.agregarSimbolo(simbolo)
             self.tabla[simbolo.id.lower()] = simbolo
+            return None
+    def setTabla2(self, simbolo,id):      # Agregar una variable
+        if id.lower() in self.tabla :
+            return Excepcion("Semantico", "Variable " + simbolo.id + " ya existe", simbolo.fila, simbolo.columna)
+        else:
+            self.agregarSimbolo(simbolo)
+            self.tabla[id.lower()] = simbolo
             return None
 
     def getTabla(self, id):            # obtener una variable
         tablaActual = self
         while tablaActual != None:
-            if id in tablaActual.tabla :
+            if id.lower() in tablaActual.tabla :
                 return tablaActual.tabla[id.lower()]           # RETORNA SIMBOLO
             else:
                 tablaActual = tablaActual.anterior
         return None
+
+    def agregarSimbolo(self,simbolo):
+        tablaActual = self
+        simbolo.ambito = self.ambito
+        while tablaActual !=None:
+            if tablaActual.anterior == None:
+                tablaActual.lista.append(simbolo)
+                return
+            tablaActual = tablaActual.anterior
+
 
     def actualizarTabla(self, simbolo):
         tablaActual = self
@@ -31,6 +51,7 @@ class TablaSimbolos:
                 if tablaActual.tabla[simbolo.id.lower()].getTipo() == simbolo.getTipo() or tablaActual.tabla[simbolo.id.lower()].getTipo() == TIPO.NULO or simbolo.getTipo() == TIPO.NULO:
                     tablaActual.tabla[simbolo.id.lower()].setValor(simbolo.getValor())
                     tablaActual.tabla[simbolo.id.lower()].setTipo(simbolo.getTipo())
+                    self.agregarSimbolo(simbolo)
                     return None             #VARIABLE ACTUALIZADA
                 return Excepcion("Semantico", "Tipo de dato Diferente en Asignacion", simbolo.getFila(), simbolo.getColumna())
             else:
